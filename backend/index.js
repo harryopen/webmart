@@ -5,13 +5,14 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const port = process.env.PORT || 8001;
 app.use(cors());
 // Database connection
 mongoose.connect(
   'mongodb+srv://Greatstackdev:Gurmeet%40123@cluster0.jxhku5k.mongodb.net',
 );
-
+app.use(bodyParser.json());
 // API creation
 app.get('/', (req, res) => {
   res.send('Express is running ');
@@ -164,8 +165,8 @@ app.post('/login', async (req, res) => {
 
 // End point for adding data to database
 app.post('/addproduct', async (req, res) => {
+  console.log('The data from frontend is ', req.body);
   let products = await Product.find({});
-  console.log(products);
   let id;
   if (products.length > 0) {
     let last_product_array = products.slice(-1);
@@ -183,7 +184,7 @@ app.post('/addproduct', async (req, res) => {
     new_price: req.body.new_price,
     old_price: req.body.old_price,
   });
-
+  console.log('The data from user', product);
   await product.save();
   console.log('saved');
   res.json({
