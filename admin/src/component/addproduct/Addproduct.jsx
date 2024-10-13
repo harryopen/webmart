@@ -28,8 +28,10 @@ const Addproduct = () => {
     let responseData;
     let product = formdata;
     let formData = new FormData();
+    const endpoint = `${import.meta.env.VITE_API_URL}upload`;
+    console.log('The URL is ', endpoint);
     formData.append('product', image);
-    await fetch('http://localhost:8001/upload', {
+    await fetch(endpoint, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
