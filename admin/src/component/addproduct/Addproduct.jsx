@@ -44,7 +44,7 @@ const Addproduct = () => {
       });
     if (responseData.success) {
       product.image = responseData.image_url;
-      await fetch('http://localhost:8001/addproduct', {
+      await fetch(`${import.meta.env.VITE_API_URL}addproduct `, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
