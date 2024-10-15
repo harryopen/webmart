@@ -22,7 +22,7 @@ const ListProduct = () => {
     const endpointRemoveProduct = `${
       import.meta.env.VITE_API_URL
     }removeproduct`;
-    console.log('The endpoint is ', endpoint);
+    console.log('The endpoint is ', endpointRemoveProduct);
     await fetch(endpointRemoveProduct, {
       method: 'POST',
       headers: {
