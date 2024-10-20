@@ -18,7 +18,7 @@ function ShopCategory(props) {
       if (!response.ok) {
         throw new Error('Network response was not ok ');
       }
-      const result = response.json();
+      const result = await  response.json();
       setallProduct(result);
     } catch (error) {
       setError(error.message);
