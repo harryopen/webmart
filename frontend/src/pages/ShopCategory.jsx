@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from 'react';
-
 import Item from '../components/item/Item';
 
 function ShopCategory(props) {
@@ -7,19 +6,18 @@ function ShopCategory(props) {
   const [allProduct, setallProduct] = useState(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
-   const apiUrl = `${import.meta.VITE_API_URL}${props}`;
-  console.log("the url is ",apiUrl);
-  const category = props.category || '';
+
+  const { category } = props;
 
   const fetchData = async () => {
     try {
-      const apiUrl = `${import.meta.VITE_API_URL}${props}`;
-      console.log("the url is ",apiUrl);
+      const apiUrl = `${import.meta.env.VITE_API_URL}${category}`;
+      console.log(apiUrl);
       const response = await fetch(apiUrl);
       if (!response.ok) {
         throw new Error('Network response was not ok ');
       }
-      const result = await  response.json();
+      const result = await response.json();
       setallProduct(result);
     } catch (error) {
       setError(error.message);
@@ -29,13 +27,14 @@ function ShopCategory(props) {
   };
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [category]);
 
+  console.log('The product send by ', allProduct);
   // Filter products based on category
-  console.log(allProduct);
-  const filteredProducts = allProduct.filter(
-    (item) => item.category === category,
-  );
+  const filteredProducts =
+    allProduct && allProduct.length > 0
+      ? allProduct.filter((item) => item.category === category)
+      : [];
 
   return (
     <div className="mb-[150px]">
