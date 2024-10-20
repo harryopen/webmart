@@ -47,7 +47,7 @@ const ListProduct = () => {
             <div className="listproduct-format-main listproduct-format">
               <img
                 className="listproduct-product-icon"
-                src={'${import.meta.env.VITE_API_URL}e.image`}
+                src={'${import.meta.env.VITE_API_URL}${e.image}`}
                 alt=""
               />
               <p className="cartitems-product-title">{e.name}</p>
