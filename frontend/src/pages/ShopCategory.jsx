@@ -31,6 +31,7 @@ function ShopCategory(props) {
   }, []);
 
   // Filter products based on category
+  console.log(allProduct);
   const filteredProducts = allProduct.filter(
     (item) => item.category === category,
   );
