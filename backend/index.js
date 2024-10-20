@@ -44,12 +44,13 @@ app.get('/allproducts', async (req, res) => {
 });
 
 //End point for womenpopular
-app.get('/womenpopular', async (req, res) => {
+app.get('/women', async (req, res) => {
   let product = await Product.find({ category: 'women' });
   let popular_women = product.slice(0, 4);
 
   res.send(popular_women);
 });
+//E
 // Creating middleware to fetch user
 const fetchUser = async (req, res, next) => {
   const token = req.header('auth-token');
