@@ -43,14 +43,22 @@ app.get('/allproducts', async (req, res) => {
   res.json(products);
 });
 
-//End point for womenpopular
+//End point for women
 app.get('/women', async (req, res) => {
   let product = await Product.find({ category: 'women' });
-  let popular_women = product.slice(0, 4);
-
-  res.send(popular_women);
+  res.send(product);
 });
-//E
+//Endpint for kids
+app.get('/kids',async(req,res)=>{
+  let product = await Product.find({category:'kids'});
+  res.send(product);
+  
+})
+//Endpoint for men
+app.get('/men',async(req,res)=>{
+  let product = await Product.find({category:'men'})
+  res.send(product);
+})
 // Creating middleware to fetch user
 const fetchUser = async (req, res, next) => {
   const token = req.header('auth-token');
