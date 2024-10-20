@@ -13,7 +13,7 @@ function ShopCategory(props) {
   const fetchData = async () => {
     try {
       const apiUrl = `${import.meta.VITE_API_URL}${props}`;
-      console.log(apiUrl);
+      console.log("the url is ",apiUrl);
       const response = await fetch(apiUrl);
       if (!response.ok) {
         throw new Error('Network response was not ok ');
