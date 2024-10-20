@@ -7,7 +7,8 @@ function ShopCategory(props) {
   const [allProduct, setallProduct] = useState(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
-
+   const apiUrl = `${import.meta.VITE_API_URL}${props}`;
+  console.log(apiUrl);
   const category = props.category || '';
 
   const fetchData = async () => {
