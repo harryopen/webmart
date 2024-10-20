@@ -48,8 +48,7 @@ const ListProduct = () => {
               <img
                 className="listproduct-product-icon"
                  src={`${import.meta.env.VITE_API_URL}${e.image}`}
-                alt=""
-                onError={() => console.log('Image failed to load:', `${import.meta.env.VITE_API_URL}${e.image}`)}
+                 alt={`Image path: ${import.meta.env.VITE_API_URL}${e.image}`}
 
               />
               <p className="cartitems-product-title">{e.name}</p>
