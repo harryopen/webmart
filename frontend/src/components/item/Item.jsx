@@ -2,15 +2,16 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Item = (props) => {
-  const apiUrl = https://webmart.onrender.com;
+ const apiUrl = "https://webmart.onrender.com";  // The base API URL
+const imageUrl = `${apiUrl}${props.image}`;     // Constructing the full image URL
   return (
     <div className="item flex flex-col items-center justify-center text-center">
       <Link to={`/product/${props.id}`}>
         {' '}
         <img
           onClick={window.scrollTo(0, 0)}
-          src={`${apiUrl}` + props.image}
-          alt={src}
+           src={imageUrl}               // Correct src
+    alt={`Image for ${props.image}`}  // Descriptive alt text for accessibility
           className="w-full h-auto object-contain mb-4 max-h-48 lg:max-h-full"
         />
       </Link>
