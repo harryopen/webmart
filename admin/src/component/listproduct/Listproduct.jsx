@@ -47,7 +47,7 @@ const ListProduct = () => {
             <div className="listproduct-format-main listproduct-format">
               <img
                 className="listproduct-product-icon"
-                 src={`${import.meta.env.VITE_API_URL}${e.image}`}
+                 src={`https://webmart.onrender.com${e.image}`}
                  alt={`Image path: ${import.meta.env.VITE_API_URL}${e.image}`}
 
               />
