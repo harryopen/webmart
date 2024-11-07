@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Item = (props) => {
-  const apiUrl = import.meta.VITE_API_URL;
+  const apiUrl = https://webmart.onrender.com;
   return (
     <div className="item flex flex-col items-center justify-center text-center">
       <Link to={`/product/${props.id}`}>
@@ -10,7 +10,7 @@ const Item = (props) => {
         <img
           onClick={window.scrollTo(0, 0)}
           src={`${apiUrl}` + props.image}
-          alt={props.name}
+          alt={src}
           className="w-full h-auto object-contain mb-4 max-h-48 lg:max-h-full"
         />
       </Link>
