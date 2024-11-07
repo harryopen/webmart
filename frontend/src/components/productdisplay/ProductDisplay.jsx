@@ -3,7 +3,7 @@ import { ShopContext } from '../../context/ShopContext';
 
 function ProductDisplay(props) {
   const { Product } = props;
-  const { addtocart, cartItems } = useContext(ShopContext);
+  // const { addtocart, cartItems } = useContext(ShopContext);
 
   return (
     <div className="flex ">
