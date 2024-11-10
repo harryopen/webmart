@@ -1,8 +1,11 @@
 import './ProductDisplay.css';
 import star_icon from '../Assets/star_icon.png';
 import star_dull_icon from '../Assets/star_dull_icon.png';
+import { ShopContext } from '../../context/ShopContext';
+import { useContext } from 'react';
 
 function ProductDisplay(props) {
+  const { addToCart } = useContext(ShopContext);
   const { Product } = props;
   const apiUrl = 'https://webmart.onrender.com'; // The base API URL
   const imageUrl = `${apiUrl}${Product.image}`;
@@ -65,4 +68,3 @@ function ProductDisplay(props) {
 }
 
 export default ProductDisplay;
-
