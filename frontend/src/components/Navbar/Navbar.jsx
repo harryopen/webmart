@@ -8,7 +8,7 @@ import { ShopContext } from '../../context/ShopContext';
 
 function Navbar() {
     const[nav,setNav] =useState("shop");
-    const {count}=useContext(ShopContext);
+    const {getTotalCartItems}=useContext(ShopContext);
   return (
     <div className='flex justify-around p-4 '>
         <div className='logo flex items-center gap-3'>
@@ -27,7 +27,7 @@ function Navbar() {
           }}>logout</button>: <Link to  ='/login'><button className='border p-1 rounded-lg active:text-red-500'> Login</button></Link>}
 
             <Link to ='/cart'><img src={cart_icon}/></Link>
-            <div className='p-1 h-8  rounded-lg w-5 mt-[-45px] ml-[-30px] text-white bg-red-700'>{count}</div>
+            <div className='p-1 h-8  rounded-lg w-5 mt-[-45px] ml-[-30px] text-white bg-red-700'>{getTotalCartItems()}</div>
         </div>
 
     </div>
