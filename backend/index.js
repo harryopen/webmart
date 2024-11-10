@@ -80,8 +80,12 @@ const fetchUser = async (req, res, next) => {
 };
 // End point for adding products in cartdata
 app.post('/addtocart', fetchUser, async (req, res) => {
+    console.log('Request body:', req.body); 
   let userData = await Users.findOne({ _id: req.user.id });
   console.log('Id coming from frontend', req.body.itemID);
+   if (!req.body.itemID) {
+    return res.status(400).send({ errors: 'ItemID is required' });
+  }
   userData.cartData[req.body.itemID] += 1;
   await Users.findOneAndUpdate(
     { _id: req.user.id },
