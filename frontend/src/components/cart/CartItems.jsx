@@ -1,10 +1,18 @@
-import React, { useContext } from 'react'
-import { ShopContext } from '../../context/ShopContext'
+import { useContext } from 'react';
+import { ShopContext } from '../../context/ShopContext';
 import remove_icon from '../Assets/cart_cross_icon.png';
-import "./Cartitems.css";
+import './Cartitems.css';
 function CartItems() {
-  const {getTotalcart, cartItems, allProduct, addtocart, removetocart } = useContext(ShopContext);
-  console.log("The value present inside cart",cartItems); 
+  const {
+    getTotalCartItems,
+    cartItems,
+    products,
+    addtocart,
+    removetocart,
+    getTotalCartAmount,
+  } = useContext(ShopContext);
+  console.log('The value present inside cart', cartItems);
+  console.log('The value in allproduct', products);
   return (
     <div className="cartitems">
       <div className="cartitems-format-main">
@@ -16,32 +24,47 @@ function CartItems() {
         <p>Remove</p>
       </div>
       <hr />
-      {allProduct.map((e)=>{
-
-        if(cartItems[e.id]>0)
-        {
-          return  <div>
-                    <div className="cartitems-format-main cartitems-format">
-                      <img className="cartitems-product-icon" src={e.image} alt="" />
-                      <p cartitems-product-title>{e.name}</p>
-                      <p>${e.new_price}</p>
-                      <button className="cartitems-quantity">{cartItems[e.id]}</button>
-                      <p>${e.new_price*cartItems[e.id]}</p>
-                      <img onClick={()=>{removetocart(e.id)}} className="cartitems-remove-icon" src={remove_icon} alt="" />
-                    </div>
-                     <hr />
-                  </div>;
+      {products.map((e) => {
+        if (cartItems[e.id] > 0) {
+          return (
+            <>
+              <div>
+                <div className="cartitems-format-main cartitems-format">
+                  <img
+                    className="cartitems-product-icon"
+                    src={e.image}
+                    alt=""
+                  />
+                  <p cartitems-product-title>{e.name}</p>
+                  <p>${e.new_price}</p>
+                  <button className="cartitems-quantity">
+                    {cartItems[e.id]}
+                  </button>
+                  <p>${e.new_price * cartItems[e.id]}</p>
+                  <img
+                    onClick={() => {
+                      removetocart(e.id);
+                    }}
+                    className="cartitems-remove-icon"
+                    src={remove_icon}
+                    alt=""
+                  />
+                </div>
+                <hr />
+              </div>
+            </>
+          );
         }
         return null;
       })}
-      
+
       <div className="cartitems-down">
         <div className="cartitems-total">
           <h1>Cart Totals</h1>
           <div>
             <div className="cartitems-total-item">
               <p>Subtotal</p>
-              <p>${getTotalcart()}</p>
+              <p>${getTotalCartItems()}</p>
             </div>
             <hr />
             <div className="cartitems-total-item">
@@ -51,7 +74,7 @@ function CartItems() {
             <hr />
             <div className="cartitems-total-item">
               <h3>Total</h3>
-              <h3>${getTotalcart()}</h3>
+              <h3>${getTotalCartAmount()}</h3>
             </div>
           </div>
           <button>PROCEED TO CHECKOUT</button>
@@ -64,8 +87,8 @@ function CartItems() {
           </div>
         </div>
       </div>
-    </div>  )
+    </div>
+  );
 }
 
-export default CartItems
-
+export default CartItems;
