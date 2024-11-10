@@ -8,7 +8,7 @@ function CartItems() {
     cartItems,
     products,
     addtocart,
-    removetocart,
+    removeFromCart,
     getTotalCartAmount,
   } = useContext(ShopContext);
   console.log('The value present inside cart', cartItems);
@@ -32,7 +32,7 @@ function CartItems() {
                 <div className="cartitems-format-main cartitems-format">
                   <img
                     className="cartitems-product-icon"
-                    src={e.image}
+                     src={`https://webmart.onrender.com${e.image}`}
                     alt=""
                   />
                   <p cartitems-product-title>{e.name}</p>
@@ -43,7 +43,7 @@ function CartItems() {
                   <p>${e.new_price * cartItems[e.id]}</p>
                   <img
                     onClick={() => {
-                      removetocart(e.id);
+                      removeFromCart(e.id);
                     }}
                     className="cartitems-remove-icon"
                     src={remove_icon}
