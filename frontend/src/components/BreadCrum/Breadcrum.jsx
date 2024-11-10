@@ -1,19 +1,15 @@
 import React from 'react';
-import arrow_icon from '../Assets/breadcrum_arrow.png';
 import './BreadCrum.css';
-function Breadcrum(props) {
+import arrow_icon from '../Assets/breadcrum_arrow.png';
+
+const Breadcrums = (props) => {
   const { product } = props;
   return (
-    <div className="flex">
-      Home
-      <img src={arrow_icon} />
-      Shop
-      <img src={arrow_icon} />
-      {product.category}
-      <img src={arrow_icon} />
-      {product.name}
+    <div className="breadcrums">
+      HOME <img src={arrow_icon} alt="" /> SHOP <img src={arrow_icon} alt="" />{' '}
+      {product.category} <img src={arrow_icon} alt="" /> {product.name}
     </div>
   );
-}
+};
 
-export default Breadcrum;
+export default Breadcrums;
