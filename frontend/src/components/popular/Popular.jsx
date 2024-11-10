@@ -3,7 +3,7 @@ import Item from '../item/Item';
 
 function Popular() {
   const [popularWomen, setpopularWomen] = useState([]);
-  const endpoint = `${import.meta.env.VITE_API_URL}womenpopular`;
+  const endpoint = `${import.meta.env.VITE_API_URL}women`;
   useEffect(() => {
     fetch(endpoint)
       .then((response) => response.json())
