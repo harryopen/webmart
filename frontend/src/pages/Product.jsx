@@ -42,7 +42,7 @@ function Product() {
       <Breadcrum product={product} />
       <ProductDisplay Product={product} />
       <Description />
-      <RelatedProducts />
+     <RelatedProducts category={product.category} />
     </div>
   );
 }
