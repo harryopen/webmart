@@ -1,20 +1,100 @@
-.sidebar{
+.sidebar {
   display: flex;
   flex-direction: column;
-  padding-top: 30px;
-  gap:20px;
-  width: 100%;
-  max-width: 250px;
-  background: white;
-  height: 100vh;
+  width: 260px;
+  min-width: 260px;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border-color);
+  padding: 24px 16px;
+  min-height: calc(100vh - 67px);
+  gap: 16px;
 }
-.sidebar-item{
+
+.sidebar-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  padding: 0 12px;
+}
+
+.sidebar-nav {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-item {
+  display: flex;
   align-items: center;
-  margin: 0px 20px;
-  padding: 5px 10px;
-  background:#f6f6f6;
-  gap:20px;
-  cursor: pointer;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  transition: var(--transition-fast);
+  position: relative;
+}
+
+.sidebar-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: #f1f5f9;
+  transition: var(--transition-fast);
+}
+
+.sidebar-icon-wrapper img {
+  width: 20px;
+  height: 20px;
+}
+
+.sidebar-item:hover {
+  background: #f1f5f9;
+  color: var(--text-primary);
+}
+
+.sidebar-item:hover .sidebar-icon-wrapper {
+  background: #e2e8f0;
+}
+
+.sidebar-item.active {
+  background: var(--primary-light);
+  color: var(--primary-color);
+}
+
+.sidebar-item.active .sidebar-icon-wrapper {
+  background: var(--primary-color);
+  box-shadow: var(--shadow-glow);
+}
+
+.sidebar-item.active .sidebar-icon-wrapper img {
+  filter: brightness(0) invert(1);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    min-width: 100%;
+    min-height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px;
+  }
+  .sidebar-section-title {
+    display: none;
+  }
+  .sidebar-nav {
+    flex-direction: row;
+    justify-content: center;
+  }
+  .sidebar-item {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
 }

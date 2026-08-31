@@ -1,67 +1,158 @@
+import React, { useContext, useState } from 'react';
 import './ProductDisplay.css';
 import star_icon from '../Assets/star_icon.png';
 import star_dull_icon from '../Assets/star_dull_icon.png';
 import { ShopContext } from '../../context/ShopContext';
-import { useContext } from 'react';
 
 function ProductDisplay(props) {
   const { addToCart } = useContext(ShopContext);
   const { Product } = props;
-  const apiUrl = 'https://webmart.onrender.com'; // The base API URL
-  const imageUrl = `${apiUrl}${Product.image}`;
-  console.log('The props is ', props);
-  console.log('The url is ', imageUrl);
+
+  const [selectedSize, setSelectedSize] = useState('M');
+  const [added, setAdded] = useState(false);
+
+  if (!Product) return null;
+
+  const apiUrl = 'https://webmart.onrender.com';
+  const imageUrl = Product.image?.startsWith('http')
+    ? Product.image
+    : `${apiUrl}${Product.image}`;
+
+  const handleAddToCart = () => {
+    addToCart(Product.id);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2500);
+  };
+
   return (
-    <div className="productdisplay">
-      <div className="productdisplay-left">
-        <div className="productdisplay-img-list">
-          <img src={imageUrl} alt="img" />
-          <img src={imageUrl} alt="img" />
-          <img src={imageUrl} alt="img" />
-          <img src={imageUrl} alt="img" />
-        </div>
-        <div className="productdisplay-img">
-          <img className="productdisplay-main-img" src={imageUrl} alt="img" />
-        </div>
-      </div>
-      <div className="productdisplay-right">
-        <h1>{Product.name}</h1>
-        <div className="productdisplay-right-stars">
-          <img src={star_icon} alt="" />
-          <img src={star_icon} alt="" />
-          <img src={star_icon} alt="" />
-          <img src={star_icon} alt="" />
-          <img src={star_dull_icon} alt="" />
-          <p>(122)</p>
-        </div>
-        <div className="productdisplay-right-prices">
-          <div className="productdisplay-right-price-old">
-            ${Product.old_price}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        
+        {/* Left: Gallery & Main Image */}
+        <div className="flex flex-col-reverse sm:flex-row gap-4">
+          {/* Thumbnails */}
+          <div className="flex sm:flex-col gap-3 justify-center">
+            {[1, 2, 3, 4].map((thumb, idx) => (
+              <div
+                key={idx}
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-slate-50 border border-slate-200 cursor-pointer hover:border-red-500 transition-all p-1"
+              >
+                <img
+                  src={imageUrl}
+                  alt={`Thumbnail ${idx + 1}`}
+                  className="w-full h-full object-cover rounded-lg"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://via.placeholder.com/80?text=Image';
+                  }}
+                />
+              </div>
+            ))}
           </div>
-          <div className="productdisplay-right-price-new">
-            ${Product.new_price}
-          </div>
-        </div>
-        <div className="productdisplay-right-description">
-          {Product.description}
-        </div>
-        <div className="productdisplay-right-size">
-          <h1>Select Size</h1>
-          <div className="productdisplay-right-sizes">
-            <div>S</div>
-            <div>M</div>
-            <div>L</div>
-            <div>XL</div>
-            <div>XXL</div>
+
+          {/* Main Display Image */}
+          <div className="flex-1 bg-slate-50 rounded-3xl border border-slate-100 overflow-hidden p-6 flex items-center justify-center shadow-sm max-h-[500px]">
+            <img
+              className="w-full h-full object-contain max-h-[440px] drop-shadow-md hover:scale-105 transition-transform duration-300"
+              src={imageUrl}
+              alt={Product.name || 'Product Image'}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'https://via.placeholder.com/450?text=No+Image';
+              }}
+            />
           </div>
         </div>
-        <button onClick={() => addToCart(Product.id)}>ADD TO CART</button>
-        <p className="productdisplay-right-category">
-          <span>Category :</span> Women, T-shirt, Crop Top
-        </p>
-        <p className="productdisplay-right-category">
-          <span>Tags :</span> Modern, Latest
-        </p>
+
+        {/* Right: Details & Actions */}
+        <div className="flex flex-col items-start">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight mb-4">
+            {Product.name}
+          </h1>
+
+          {/* Rating */}
+          <div className="flex items-center gap-2 mb-6">
+            <div className="flex items-center gap-1">
+              <img src={star_icon} alt="star" className="w-4 h-4" />
+              <img src={star_icon} alt="star" className="w-4 h-4" />
+              <img src={star_icon} alt="star" className="w-4 h-4" />
+              <img src={star_icon} alt="star" className="w-4 h-4" />
+              <img src={star_dull_icon} alt="star" className="w-4 h-4" />
+            </div>
+            <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
+              (122 Reviews)
+            </span>
+          </div>
+
+          {/* Prices */}
+          <div className="flex items-center gap-4 mb-6">
+            <span className="text-3xl font-black text-red-500">
+              ${Product.new_price ? Number(Product.new_price).toFixed(2) : '0.00'}
+            </span>
+            {Product.old_price && (
+              <span className="text-xl font-medium text-slate-400 line-through">
+                ${Number(Product.old_price).toFixed(2)}
+              </span>
+            )}
+            <span className="bg-red-50 text-red-600 text-xs font-extrabold px-3 py-1 rounded-full border border-red-100">
+              SAVE SALE
+            </span>
+          </div>
+
+          {/* Description */}
+          <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-8 border-b border-slate-100 pb-6 w-full">
+            {Product.description ||
+              'A lightweight, knitted, pullover shirt, close-fitting and with a round neckline and short sleeves, worn as an undershirt or outer garment.'}
+          </p>
+
+          {/* Size Selector */}
+          <div className="w-full mb-8">
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-sm font-bold text-slate-900 uppercase tracking-wide">Select Size</span>
+              <span className="text-xs font-semibold text-red-500 cursor-pointer hover:underline">Size Guide</span>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {['S', 'M', 'L', 'XL', 'XXL'].map((size) => (
+                <button
+                  key={size}
+                  onClick={() => setSelectedSize(size)}
+                  className={`w-12 h-12 rounded-xl font-bold text-sm transition-all border ${
+                    selectedSize === size
+                      ? 'bg-slate-900 text-white border-slate-900 shadow-md scale-105'
+                      : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400'
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* CTA Button */}
+          <div className="w-full mb-8">
+            <button
+              onClick={handleAddToCart}
+              className={`w-full py-4 rounded-full font-bold text-base tracking-wide transition-all shadow-lg active:scale-98 flex items-center justify-center gap-2 ${
+                added
+                  ? 'bg-emerald-600 text-white shadow-emerald-500/20'
+                  : 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/25'
+              }`}
+            >
+              {added ? '✓ ADDED TO CART!' : 'ADD TO CART'}
+            </button>
+          </div>
+
+          {/* Category & Tags */}
+          <div className="space-y-2 text-xs font-medium text-slate-500 pt-4 border-t border-slate-100 w-full">
+            <p>
+              <span className="font-bold text-slate-800">Category:</span> {Product.category || 'Apparel'}, Casual, Top
+            </p>
+            <p>
+              <span className="font-bold text-slate-800">Tags:</span> Modern, Latest Collection, Trending
+            </p>
+          </div>
+        </div>
+
       </div>
     </div>
   );
