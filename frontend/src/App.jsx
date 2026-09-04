@@ -9,6 +9,9 @@ import Footer from './components/Footer/Footer';
 import men_banner from './components/Assets/banner_mens.png';
 import women_banner from './components/Assets/banner_women.png';
 import kids_banner from './components/Assets/banner_kids.png';
+import LoginSuccess from './pages/LoginSuccess';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+import PublicRoute from './components/ProtectedRoute/PublicRoute';
 export default function App() {
   return (
     <>
@@ -31,8 +34,23 @@ export default function App() {
           <Route path="/product" element={<Product />}>
             <Route path=":productId" element={<Product />} />
           </Route>
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/login" element={<LoginSignup />} />
+          <Route
+            path="/cart"
+            element={
+              <ProtectedRoute>
+                <Cart />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <LoginSignup />
+              </PublicRoute>
+            }
+          />
+          <Route path="/login-success" element={<LoginSuccess />} />
         </Routes>
         <Footer />
       </BrowserRouter>

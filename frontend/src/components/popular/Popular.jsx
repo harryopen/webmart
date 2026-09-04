@@ -7,7 +7,10 @@ const Popular = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('https://webmart.onrender.com/popularinwomen')
+    const baseUrl = import.meta.env.VITE_API_URL || 'https://webmart.onrender.com/';
+    const endpoint = `${baseUrl.endsWith('/') ? baseUrl : baseUrl + '/'}popularinwomen`;
+
+    fetch(endpoint)
       .then((res) => res.json())
       .then((data) => {
         setPopularProducts(Array.isArray(data) ? data : []);
@@ -47,6 +50,7 @@ const Popular = () => {
               image={item.image}
               new_price={item.new_price}
               old_price={item.old_price}
+              stock={item.stock}
             />
           ))}
         </div>

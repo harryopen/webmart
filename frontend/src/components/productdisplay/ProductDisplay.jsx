@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './ProductDisplay.css';
 import star_icon from '../Assets/star_icon.png';
 import star_dull_icon from '../Assets/star_dull_icon.png';
@@ -10,18 +10,67 @@ function ProductDisplay(props) {
 
   const [selectedSize, setSelectedSize] = useState('M');
   const [added, setAdded] = useState(false);
+  const [stock, setStock] = useState(1);
+  const [buying, setBuying] = useState(false);
+  const [purchaseMessage, setPurchaseMessage] = useState(null);
+
+  useEffect(() => {
+    if (Product?.stock !== undefined) {
+      setStock(Product.stock);
+    }
+  }, [Product]);
 
   if (!Product) return null;
 
-  const apiUrl = 'https://webmart.onrender.com';
+  const apiUrl = import.meta.env.VITE_API_URL || 'https://webmart.onrender.com/';
   const imageUrl = Product.image?.startsWith('http')
     ? Product.image
-    : `${apiUrl}${Product.image}`;
+    : `${apiUrl}${Product.image?.startsWith('/') ? Product.image.slice(1) : Product.image}`;
 
   const handleAddToCart = () => {
     addToCart(Product.id);
     setAdded(true);
     setTimeout(() => setAdded(false), 2500);
+  };
+
+  const handleBuyNow = async () => {
+    setBuying(true);
+    setPurchaseMessage(null);
+    try {
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8001/';
+      const buyEndpoint = `${apiBase.endsWith('/') ? apiBase : apiBase + '/'}buy-safe`;
+
+      const response = await fetch(buyEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ productId: Product.id }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setStock(data.remainingStock);
+        setPurchaseMessage({
+          type: 'success',
+          text: `🎉 ${data.message} Remaining stock: ${data.remainingStock}`,
+        });
+      } else {
+        setStock(0);
+        setPurchaseMessage({
+          type: 'error',
+          text: `⚠️ ${data.message || 'Out of stock!'}`,
+        });
+      }
+    } catch (err) {
+      console.error('Buy error:', err);
+      setPurchaseMessage({
+        type: 'error',
+        text: '⚠️ An error occurred during purchase.',
+      });
+    } finally {
+      setBuying(false);
+    }
   };
 
   return (
@@ -84,8 +133,8 @@ function ProductDisplay(props) {
             </span>
           </div>
 
-          {/* Prices */}
-          <div className="flex items-center gap-4 mb-6">
+          {/* Prices & Stock Badge */}
+          <div className="flex flex-wrap items-center gap-4 mb-6">
             <span className="text-3xl font-black text-red-500">
               ${Product.new_price ? Number(Product.new_price).toFixed(2) : '0.00'}
             </span>
@@ -94,10 +143,33 @@ function ProductDisplay(props) {
                 ${Number(Product.old_price).toFixed(2)}
               </span>
             )}
-            <span className="bg-red-50 text-red-600 text-xs font-extrabold px-3 py-1 rounded-full border border-red-100">
-              SAVE SALE
-            </span>
+            
+            {/* Live Stock Indicator */}
+            {stock > 0 ? (
+              <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-3.5 py-1.5 rounded-full border border-emerald-200 flex items-center gap-1.5 shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                In Stock: <span className="font-black text-emerald-900">{stock}</span> left
+              </span>
+            ) : (
+              <span className="bg-rose-50 text-rose-600 text-xs font-extrabold px-3.5 py-1.5 rounded-full border border-rose-200 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                Out of Stock
+              </span>
+            )}
           </div>
+
+          {/* Purchase Result Message Banner */}
+          {purchaseMessage && (
+            <div
+              className={`w-full p-4 rounded-2xl mb-6 text-sm font-bold border transition-all ${
+                purchaseMessage.type === 'success'
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200 shadow-sm'
+                  : 'bg-rose-50 text-rose-800 border-rose-200 shadow-sm'
+              }`}
+            >
+              {purchaseMessage.text}
+            </div>
+          )}
 
           {/* Description */}
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-8 border-b border-slate-100 pb-6 w-full">
@@ -128,17 +200,34 @@ function ProductDisplay(props) {
             </div>
           </div>
 
-          {/* CTA Button */}
-          <div className="w-full mb-8">
+          {/* CTA Buttons (Add To Cart + Buy Now) */}
+          <div className="flex flex-col sm:flex-row gap-4 w-full mb-8">
             <button
               onClick={handleAddToCart}
-              className={`w-full py-4 rounded-full font-bold text-base tracking-wide transition-all shadow-lg active:scale-98 flex items-center justify-center gap-2 ${
-                added
+              disabled={stock <= 0}
+              className={`flex-1 py-4 rounded-full font-bold text-base tracking-wide transition-all shadow-lg active:scale-98 flex items-center justify-center gap-2 ${
+                stock <= 0
+                  ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none border border-slate-200'
+                  : added
                   ? 'bg-emerald-600 text-white shadow-emerald-500/20'
-                  : 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/25'
+                  : 'bg-slate-900 hover:bg-slate-800 text-white shadow-slate-900/20'
               }`}
             >
               {added ? '✓ ADDED TO CART!' : 'ADD TO CART'}
+            </button>
+
+            <button
+              onClick={handleBuyNow}
+              disabled={buying || stock <= 0}
+              className={`flex-1 py-4 rounded-full font-bold text-base tracking-wide transition-all shadow-lg active:scale-98 flex items-center justify-center gap-2 ${
+                stock <= 0
+                  ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed shadow-none'
+                  : buying
+                  ? 'bg-red-400 text-white cursor-wait'
+                  : 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/25'
+              }`}
+            >
+              {buying ? 'BUYING...' : stock <= 0 ? 'OUT OF STOCK' : '⚡ BUY NOW'}
             </button>
           </div>
 

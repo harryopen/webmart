@@ -38,11 +38,11 @@ function Product() {
       : [];
 
   return (
-    <div>
+    <div className="min-h-screen bg-slate-50/50 pb-12">
       <Breadcrum product={product} />
       <ProductDisplay Product={product} />
-      <Description />
-     <RelatedProducts category={product.category} />
+      <Description product={product} />
+      <RelatedProducts category={product?.category} currentId={product?.id} />
     </div>
   );
 }

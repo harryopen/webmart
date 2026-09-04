@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import logo from '../Assets/logo.png';
 import cart_icon from '../Assets/cart_icon.png';
 import { Link, useLocation } from 'react-router-dom';
@@ -8,6 +8,12 @@ function Navbar() {
   const location = useLocation();
   const { getTotalCartItems } = useContext(ShopContext);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (location.pathname !== '/login' && location.pathname !== '/login-success') {
+      sessionStorage.setItem('lastVisitedPath', location.pathname + location.search);
+    }
+  }, [location]);
 
   const getActiveTab = () => {
     const path = location.pathname;
@@ -103,7 +109,7 @@ function Navbar() {
               Logout
             </button>
           ) : (
-            <Link to="/login">
+            <Link to="/login" state={{ from: location }}>
               <button className="px-6 py-2 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition-all shadow-sm hover:shadow active:scale-95">
                 Login
               </button>

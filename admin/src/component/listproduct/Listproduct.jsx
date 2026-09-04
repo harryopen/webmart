@@ -92,9 +92,10 @@ const ListProduct = () => {
             </div>
           ) : (
             allproducts.map((product, index) => {
+              const baseUrl = import.meta.env.VITE_API_URL || 'https://webmart.onrender.com/';
               const imageUrl = product.image?.startsWith('http')
                 ? product.image
-                : `https://webmart.onrender.com${product.image}`;
+                : `${baseUrl}${product.image?.startsWith('/') ? product.image.slice(1) : product.image}`;
 
               return (
                 <div key={product.id || index} className="listproduct-row">
