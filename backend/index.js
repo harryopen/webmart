@@ -34,7 +34,7 @@ const storage = multer.diskStorage({
 
 // Endpoint 1: Initiate Google OAuth (Redirects user to Google consent screen)
 app.get('/auth/google', (req, res) => {
-  const redirectUri = 'http://localhost:8001/auth/google/callback';
+  const redirectUri = `${process.env.CLIENT_URL}/auth/google/callback`;
   const googleAuthUrl =
     `https://accounts.google.com/o/oauth2/v2/auth?` +
     `client_id=${process.env.GOOGLE_CLIENT_ID}` +
@@ -49,7 +49,7 @@ app.get('/auth/google', (req, res) => {
 // Endpoint 2: Callback where Google sends code back
 app.get('/auth/google/callback', async (req, res) => {
   const { code } = req.query;
-  const redirectUri = 'http://localhost:8001/auth/google/callback';
+  const redirectUri = `${process.env.CLIENT_URL}/auth/google/callback`;
   const clientUrl = process.env.CLIENT_URL 
 
   if (!code) {
