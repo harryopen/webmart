@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
@@ -9,9 +10,11 @@ const bodyParser = require('body-parser');
 const port = process.env.PORT || 8001;
 app.use(cors());
 // Database connection
-mongoose.connect(
-  'mongodb+srv://Greatstackdev:Gurmeet%40123@cluster0.jxhku5k.mongodb.net',
-);
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log('Connected to MongoDB successfully'))
+  .catch((err) => console.error('MongoDB Connection Error:', err));
+
 app.use(bodyParser.json());
 // API creation
 app.get('/', (req, res) => {
@@ -28,6 +31,85 @@ const storage = multer.diskStorage({
     );
   },
 });
+
+// Endpoint 1: Initiate Google OAuth (Redirects user to Google consent screen)
+app.get('/auth/google', (req, res) => {
+  const redirectUri = 'http://localhost:8001/auth/google/callback';
+  const googleAuthUrl =
+    `https://accounts.google.com/o/oauth2/v2/auth?` +
+    `client_id=${process.env.GOOGLE_CLIENT_ID}` +
+    `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+    `&response_type=code` +
+    `&scope=${encodeURIComponent('openid email profile')}` +
+    `&prompt=select_account`;
+
+  res.redirect(googleAuthUrl);
+});
+
+// Endpoint 2: Callback where Google sends code back
+app.get('/auth/google/callback', async (req, res) => {
+  const { code } = req.query;
+  const redirectUri = 'http://localhost:8001/auth/google/callback';
+  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+
+  if (!code) {
+    return res.redirect(`${clientUrl}/login?error=no_code`);
+  }
+
+  try {
+    // 1. Exchange authorization code for tokens from Google
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        code: code,
+        grant_type: 'authorization_code',
+        redirect_uri: redirectUri,
+      }),
+    });
+
+    const tokenData = await tokenResponse.json();
+    if (!tokenResponse.ok) {
+      console.error('Token Error:', tokenData);
+      return res.redirect(`${clientUrl}/login?error=token_failed`);
+    }
+
+    // 2. Fetch user profile info using access token
+    const profileResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    });
+
+    const profile = await profileResponse.json();
+    const { email, name } = profile;
+
+    // 3. Find or Create User in MongoDB
+    let user = await Users.findOne({ email });
+    if (!user) {
+      let cart = {};
+      for (let i = 0; i < 300; i++) cart[i] = 0;
+
+      user = new Users({
+        name: name || email.split('@')[0],
+        email: email,
+        cartData: cart,
+      });
+      await user.save();
+    }
+
+    // 4. Generate your app's JWT token
+    const data = { user: { id: user.id } };
+    const authToken = jwt.sign(data, process.env.JWT_SECRET);
+
+    // 5. Redirect browser back to React with JWT token in query
+    res.redirect(`${clientUrl}/login-success?token=${authToken}`);
+  } catch (error) {
+    console.error('Google Callback Error:', error);
+    res.redirect(`${clientUrl}/login?error=server_error`);
+  }
+});
+
 app.use('/images', express.static('upload/images'));
 const upload = multer({ storage: storage });
 app.post('/upload', upload.single('product'), (req, res) => {
@@ -38,9 +120,14 @@ app.post('/upload', upload.single('product'), (req, res) => {
 });
 // End point for all products
 app.get('/allproducts', async (req, res) => {
-  let products = await Product.find({});
-  console.log(products);
-  res.json(products);
+  try {
+    let products = await Product.find({});
+    console.log(products);
+    res.json(products);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 //End point for women
@@ -49,14 +136,14 @@ app.get('/women', async (req, res) => {
   res.send(product);
 });
 //Endpint for kids
-app.get('/kids',async(req,res)=>{
-  let product = await Product.find({category:'kids'});
+app.get('/kids', async (req, res) => {
+  let product = await Product.find({ category: 'kids' });
   res.send(product);
-  
+
 })
 //Endpoint for men
-app.get('/men',async(req,res)=>{
-  let product = await Product.find({category:'men'})
+app.get('/men', async (req, res) => {
+  let product = await Product.find({ category: 'men' })
   res.send(product);
 })
 // Creating middleware to fetch user
@@ -80,10 +167,10 @@ const fetchUser = async (req, res, next) => {
 };
 // End point for adding products in cartdata
 app.post('/addtocart', fetchUser, async (req, res) => {
-    console.log('Request body:', req.body); 
+  console.log('Request body:', req.body);
   let userData = await Users.findOne({ _id: req.user.id });
   console.log('Id coming from frontend', req.body.itemID);
-   if (!req.body.itemID) {
+  if (!req.body.itemID) {
     return res.status(400).send({ errors: 'ItemID is required' });
   }
   userData.cartData[req.body.itemID] += 1;
@@ -224,12 +311,58 @@ const Product = mongoose.model('Product', {
   category: { type: String, required: true },
   new_price: { type: Number, required: true },
   old_price: { type: Number, required: true },
+  stock: { type: Number, default: 1 }, // Stock count for concurrency testing
   date: { type: Date, default: Date.now },
   available: { type: Boolean, default: true },
 });
-// Creating endpoint for login
-app.post('/login', async (req, res) => {
-  let user = await Users.findOne({ email: req.body.email });
+
+// 1. UNSAFE BUY ENDPOINT (Vulnerable to Race Conditions)
+app.post('/buy-unsafe', async (req, res) => {
+  const { productId } = req.body;
+  const product = await Product.findOne({ id: productId });
+
+  // Simulate network/processing delay (50ms) to expose the race condition gap
+  await new Promise((resolve) => setTimeout(resolve, 50));
+
+  if (product && product.stock > 0) {
+    product.stock = product.stock - 1; // Read then Write (Non-atomic)
+    await product.save();
+    return res.json({
+      success: true,
+      message: 'UNSAFE Purchase Successful!',
+      remainingStock: product.stock,
+    });
+  } else {
+    return res.status(400).json({
+      success: false,
+      message: 'Out of stock!',
+    });
+  }
+});
+
+// 2. SAFE BUY ENDPOINT (Concurrency-Safe using Atomic Updates)
+app.post('/buy-safe', async (req, res) => {
+  const { productId } = req.body;
+
+  // ATOMIC OPERATION: Decrement stock ONLY IF stock > 0 in a single database command
+  const product = await Product.findOneAndUpdate(
+    { id: productId, stock: { $gt: 0 } },
+    { $inc: { stock: -1 } },
+    { new: true }
+  );
+
+  if (!product) {
+    return res.status(400).json({
+      success: false,
+      message: 'Out of stock! Another user bought it first.',
+    });
+  }
+
+  res.json({
+    success: true,
+    message: 'SAFE Purchase Successful!',
+    remainingStock: product.stock,
+  });
 });
 app.listen(port, (error) => {
   if (!error) {

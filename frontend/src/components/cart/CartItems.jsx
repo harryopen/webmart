@@ -62,9 +62,10 @@ function CartItems() {
             <div className="divide-y divide-slate-100">
               {products.map((e) => {
                 if (cartItems[e.id] > 0) {
+                  const baseUrl = import.meta.env.VITE_API_URL || 'https://webmart.onrender.com/';
                   const imageUrl = e.image?.startsWith('http')
                     ? e.image
-                    : `https://webmart.onrender.com${e.image}`;
+                    : `${baseUrl}${e.image?.startsWith('/') ? e.image.slice(1) : e.image}`;
 
                   const itemTotal = Number(e.new_price) * cartItems[e.id];
 

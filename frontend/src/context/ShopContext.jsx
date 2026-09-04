@@ -4,7 +4,9 @@ export const ShopContext = createContext(null);
 
 const ShopContextProvider = (props) => {
   const [products, setProducts] = useState([]);
-  const apiUrl = 'https://webmart.onrender.com';
+  const apiUrl = import.meta.env.VITE_API_URL || 'https://webmart.onrender.com/';
+  const getApiEndpoint = (path) => `${apiUrl.endsWith('/') ? apiUrl : apiUrl + '/'}${path.startsWith('/') ? path.slice(1) : path}`;
+
   const getDefaultCart = () => {
     let cart = {};
     for (let i = 0; i < 300; i++) {
@@ -16,12 +18,12 @@ const ShopContextProvider = (props) => {
   const [cartItems, setCartItems] = useState(getDefaultCart());
 
   useEffect(() => {
-    fetch(`${apiUrl}/allproducts`)
+    fetch(getApiEndpoint('allproducts'))
       .then((res) => res.json())
-      .then((data) => setProducts(data));
+      .then((data) => setProducts(Array.isArray(data) ? data : []));
 
     if (localStorage.getItem('auth-token')) {
-      fetch(`${import.meta.env.VITE_API_URL}getcart`, {
+      fetch(getApiEndpoint('getcart'), {
         method: 'POST',
         headers: {
           Accept: 'application/form-data',
@@ -76,7 +78,7 @@ const ShopContextProvider = (props) => {
     setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] + 1 }));
     console.log('The Auth token is ', localStorage.getItem('auth-token'));
     if (localStorage.getItem('auth-token')) {
-      fetch(`https://webmart.onrender.com/addtocart`, {
+      fetch(getApiEndpoint('addtocart'), {
         method: 'POST',
         headers: {
           Accept: 'application/form',
