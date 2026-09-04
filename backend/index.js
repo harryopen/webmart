@@ -50,7 +50,7 @@ app.get('/auth/google', (req, res) => {
 app.get('/auth/google/callback', async (req, res) => {
   const { code } = req.query;
   const redirectUri = 'http://localhost:8001/auth/google/callback';
-  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+  const clientUrl = process.env.CLIENT_URL 
 
   if (!code) {
     return res.redirect(`${clientUrl}/login?error=no_code`);
